@@ -1,0 +1,41 @@
+SERVICE_NAME=""
+
+create_() {
+declare -r APP_NAME=""
+declare -r APP_VER=""
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -p 80:80 \
+  -v "${CONF_DIR}":/config \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_() {
+podman start 
+}
+
+stop_() {
+podman stop 
+}
+
+remove_() {
+podman rm 
+}
+
+update_() {
+    
+}
+
+backup_() {
+    
+}

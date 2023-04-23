@@ -1,0 +1,153 @@
+#!/bin/bash
+
+set -eu
+
+show_help() {
+cat << EOF
+Usage: podctl [-h][-c|u|d|r|U|b <service>]
+
+A convenient script that creates, starts, stops, and removes podman services.
+
+-h              Print help and exit.
+-c              Create.
+-u              Start.
+-d              Stop.
+-r              Remove.
+-U              Update.
+-b              Backup.
+EOF
+}
+
+say_err() { echo "Error: ${1}" >&2 && exit 1; }
+
+#################
+# Control Logic #
+#################
+create_service() {
+for service in "${services[@]}"; do
+  if [[ "${service}" == "${1}" ]]; then
+    create_"${service}"
+  fi
+done
+}
+
+start_service() {
+for service in "${services[@]}"; do
+  if [[ "${service}" == "${1}" ]]; then
+    start_"${service}"
+  fi
+done
+}
+
+stop_service() {
+for service in "${services[@]}"; do
+  if [[ "${service}" == "${1}" ]]; then
+    stop_"${service}"
+  fi
+done
+}
+
+remove_service() {
+for service in "${services[@]}"; do
+  if [[ "${service}" == "${1}" ]]; then
+    remove_"${service}"
+  fi
+done
+}
+
+update_service() {
+for service in "${services[@]}"; do
+  if [[ "${service}" == "${1}" ]]; then
+    update_"${service}"
+  fi
+done
+}
+
+backup_service() {
+for service in "${services[@]}"; do
+  if [[ "${service}" == "${1}" ]]; then
+    backup_"${service}"
+  fi
+done
+}
+
+##############
+# Main Logic #
+##############
+main() {
+# Container Variables
+declare -ir P_UID=1000
+declare -ir P_GID=1000
+declare -r TIME_ZONE="America/Belize"
+
+# Directories
+declare -r SERVICES_DIR="${HOME}/services"
+declare -r PODS_DIR="${HOME}/pods"
+
+# Service directories
+declare -r APPDATA_DIR="${HOME}/appdata"
+declare -r MEDIA_DIR="${HOME}/media"
+declare -r DLOAD_DIR="${MEDIA_DIR}/downloads"
+declare -r MUSIC_DIR="${MEDIA_DIR}/music"
+declare -r MOVIE_DIR="${MEDIA_DIR}/movies"
+declare -r SHOWS_DIR="${MEDIA_DIR}/shows"
+declare -r BOOKS_DIR="${MEDIA_DIR}/books"
+
+[[ ! -d "${APPDATA_DIR}" ]] && mkdir -p "${APPDATA_DIR}"
+[[ ! -d "${DLOAD_DIR}" ]] && mkdir -p "${DLOAD_DIR}"
+[[ ! -d "${MUSIC_DIR}" ]] && mkdir -p "${MUSIC_DIR}"
+[[ ! -d "${MOVIE_DIR}" ]] && mkdir -p "${MOVIE_DIR}"
+[[ ! -d "${SHOWS_DIR}" ]] && mkdir -p "${SHOWS_DIR}"
+[[ ! -d "${BOOKS_DIR}" ]] && mkdir -p "${BOOKS_DIR}"
+
+# Load service files
+declare -a services=()
+for service_file in "${SERVICES_DIR}"/*; do
+  if [[ -f "${service_file}" ]]; then
+    if [[ -r "${service_file}" ]]; then
+      source "${service_file}"
+      services+=("${SERVICE_NAME}")
+    else
+      say_err "${service_file} is not readable."
+    fi
+  else
+    say_err "${service_file} is not a valid service file."
+  fi
+done
+
+# Load pod files
+declare -a pods=()
+for pod_file in "${PODS_DIR}"/*; do
+  if [[ -f "${pod_file}" ]]; then
+    if [[ -r "${pod_file}" ]]; then
+      source "${pod_file}"
+      pods+=("${POD_NAME}")
+    else
+      say_err "${pod_file} is not readable."
+    fi
+  else
+    say_err "${pod_file} is not a valid pod file."
+  fi
+done
+
+# Get options
+while getopts ":hc:u:d:r:U:b:" args; do
+	 case $args in
+	   h) show_help; exit 0 ;;
+		  c) create_service "${OPTARG}" ;;
+		  u) start_service "${OPTARG}" ;;
+		  d) stop_service "${OPTARG}" ;;
+		  r) remove_service "${OPTARG}" ;;
+		  U) update_service "${OPTARG}" ;;
+		  b) backup_service "${OPTARG}" ;;
+		  :) say_err "-${OPTARG} requires an argument." ;;
+    ?) say_err "-${OPTARG} is not a valid option." ;;
+ 	esac
+done
+shift $((OPTIND - 1))
+}
+
+################
+# Script Start #
+################
+main "$@"
