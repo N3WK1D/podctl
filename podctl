@@ -27,6 +27,8 @@ create_service() {
 for service in "${services[@]}"; do
   if [[ "${service}" == "${1}" ]]; then
     create_"${service}"
+  else
+    say_err "${1} is not a valid service."
   fi
 done
 }
@@ -35,6 +37,8 @@ start_service() {
 for service in "${services[@]}"; do
   if [[ "${service}" == "${1}" ]]; then
     start_"${service}"
+  else
+    say_err "${1} is not a valid service."
   fi
 done
 }
@@ -43,6 +47,8 @@ stop_service() {
 for service in "${services[@]}"; do
   if [[ "${service}" == "${1}" ]]; then
     stop_"${service}"
+  else
+    say_err "${1} is not a valid service."
   fi
 done
 }
@@ -51,6 +57,8 @@ remove_service() {
 for service in "${services[@]}"; do
   if [[ "${service}" == "${1}" ]]; then
     remove_"${service}"
+  else
+    say_err "${1} is not a valid service."
   fi
 done
 }
@@ -59,6 +67,8 @@ update_service() {
 for service in "${services[@]}"; do
   if [[ "${service}" == "${1}" ]]; then
     update_"${service}"
+  else
+    say_err "${1} is not a valid service."
   fi
 done
 }
@@ -67,6 +77,8 @@ backup_service() {
 for service in "${services[@]}"; do
   if [[ "${service}" == "${1}" ]]; then
     backup_"${service}"
+  else
+    say_err "${1} is not a valid service."
   fi
 done
 }
@@ -84,7 +96,7 @@ declare -r TIME_ZONE="America/Belize"
 declare -r SERVICES_DIR="${HOME}/services"
 declare -r PODS_DIR="${HOME}/pods"
 
-# Service directories
+# Data directories
 declare -r APPDATA_DIR="${HOME}/appdata"
 declare -r MEDIA_DIR="${HOME}/media"
 declare -r DLOAD_DIR="${MEDIA_DIR}/downloads"

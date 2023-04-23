@@ -1,10 +1,22 @@
+# Name the service.
+# Append this exact value to the end of the functions' name. e.g. create_$SERVICE_NAME, start_$SERVICE_NAME, etc.
 SERVICE_NAME=""
 
 create_() {
+# Container name as set by the maintainer. e.g. nextcloud, homeassistant (note the lack of space between the words), calibre-web, etc.
 declare -r APP_NAME=""
+
+# Container version. e.g. latest, nightly, 4.2.0, etc.
 declare -r APP_VER=""
+
+# Exposed port. e.g. 80, 443, 8080
+# Create more variables for apps that expose nultiple ports. e.g. APP_PORT_1, APP_PORT_2, etc.
 declare -r APP_PORT=""
+
+# App home directory.
 declare -r APP_DIR="${APPDATA_DIR:-${HOME}/apps}/${APP_NAME}"
+
+# App config directory.
 declare -r CONF_DIR="${APP_DIR}/config"
 
 [[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
