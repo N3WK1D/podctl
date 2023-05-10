@@ -1,0 +1,34 @@
+SERVICE_NAME="home_assistant"
+
+create_home_assistant() {
+declare -r APP_NAME="homeassistant"
+declare -r APP_VER="2023.3.6"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -p 8123:8123 \
+  -v "${CONF_DIR}":/config \
+  --device /path/to/device:/path/to/device \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_home_assistant() {
+podman start homeassistant
+}
+
+stop_home_assistant() {
+podman stop homeassistant
+}
+
+remove_home_assistant() {
+podman rm homeassistant
+}

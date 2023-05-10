@@ -1,0 +1,46 @@
+SERVICE_NAME="mariadb"
+
+create_() {
+declare -r APP_NAME="mariadb"
+declare -r APP_VER="10.6.12"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+echo -en "\nEnter root password: "
+read -rs db_root
+echo -en "\nEnter database name: "
+read -r db_name
+echo -en "\nEnter username: "
+read -r db_username
+echo -en "\nEnter user password: "
+read -rs db_user
+echo -en "\n"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+ 	-e MYSQL_DATABASE="${db_name}" \
+ 	-e MYSQL_USER="${db_username}" \
+  -e MYSQL_PASSWORD="${db_user}" \
+  -p 3306:3306 \
+  -v "${CONF_DIR}":/config \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_mariadb() {
+podman start mariadb
+}
+
+stop_mariadb() {
+podman stop mariadb
+}
+
+remove_mariadb() {
+podman rm mariadb
+}

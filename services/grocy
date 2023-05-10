@@ -1,0 +1,33 @@
+SERVICE_NAME="grocy"
+
+create_grocy() {
+declare -r APP_NAME="grocy"
+declare -r APP_VER="3.3.2"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -p 80:80 \
+  -v "${CONF_DIR}":/config \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_grocy() {
+podman start grocy
+}
+
+stop_grocy() {
+podman stop grocy
+}
+
+remove_grocy() {
+podman rm grocy
+}

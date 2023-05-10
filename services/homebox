@@ -1,0 +1,31 @@
+SERVICE_NAME="homebox"
+
+create_homebox() {
+declare -r APP_NAME="homebox"
+declare -r APP_VER="latest"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -p 7745:7745 \
+  -v "${CONF_DIR}":/data \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  ghcr.io/hay-kot/"${APP_NAME}":"${APP_VER}"
+}
+
+start_homebox() {
+podman start homebox
+}
+
+stop_homebox() {
+podman stop homebox
+}
+
+remove_homebox() {
+podman rm homebox
+}

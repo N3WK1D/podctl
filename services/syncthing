@@ -1,0 +1,40 @@
+SERVICE_NAME="syncthing"
+
+create_() {
+declare -r APP_NAME="syncthing"
+declare -r APP_VER="1.23.2"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+declare -r DATA_DIR="${APP_DIR}/data"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+[[ ! -d "${DATA_DIR}" ]] && mkdir -p "${DATA_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  --hostname "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -p 8384:8384 \
+  -p 22000:22000/tcp \
+  -p 22000:22000/udp \
+  -p 21027:21027/udp \
+  -v "${CONF_DIR}":/config \
+  -v "${DATA_DIR}":/data1 \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_syncthing() {
+podman start syncthing
+}
+
+stop_syncthing() {
+podman stop syncthing
+}
+
+remove_syncthing() {
+podman rm syncthing
+}

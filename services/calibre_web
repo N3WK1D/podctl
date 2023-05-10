@@ -1,0 +1,35 @@
+SERVICE_NAME="calibre_web"
+
+create_calibre_web() {
+declare -r APP_NAME="calibre-web"
+declare -r APP_VER="0.6.19"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -e DOCKER_MODS=linuxserver/mods:universal-calibre \
+  -p 8083:8083 \
+  -v "${CONF_DIR}":/config \
+  -v "${BOOKS_DIR}":/books \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_calibre_web() {
+podman start calibre-web
+}
+
+stop_calibre_web() {
+podman stop calibre-web
+}
+
+remove_calibre_web() {
+podman rm calibre-web
+}

@@ -1,0 +1,32 @@
+SERVICE_NAME="dashy"
+
+create_dashy() {
+declare -r APP_NAME="dashy"
+declare -r APP_VER="2.1.1"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+declare -r CONF_FILE="${CONF_DIR}/conf.yml"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+[[ ! -f "${CONF_FILE}" ]] && cp "${APP_DIR}"/conf.yml.sample "${CONF_DIR}"/conf.yml
+
+podman create \
+  --name "${APP_NAME}" \
+  -p 80:80 \
+  -v "${CONF_FILE}":/app/public/conf.yml \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lissy93/"${APP_NAME}":"${APP_VER}"
+}
+
+start_dashy() {
+podman start dashy
+}
+
+stop_dashy() {
+podman stop dashy
+}
+
+remove_dashy() {
+podman rm dashy
+}

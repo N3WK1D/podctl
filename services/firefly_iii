@@ -1,0 +1,74 @@
+SERVICE_NAME="fireflyiii"
+
+create_() {
+declare -r APP_NAME="fireflyiii"
+declare -r APP_VER="latest"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r DB_NAME="mariadb"
+declare -r DB_VER="10.6.12"
+declare -r CONF_DIR="${APP_DIR}/config"
+declare -r DB_DIR="${APP_DIR}/db"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+[[ ! -d "${DB_DIR}" ]] && mkdir -p "${DB_DIR}"
+
+echo -en "Enter root password: "
+read -rs db_root
+echo -en "\nEnter user password: "
+read -rs db_user
+echo -en "\n"
+
+podman pod create \
+  --name "${APP_NAME}" \
+  -p 8080:8080
+
+podman create \
+  --name fireflyiii-db \
+  --pod "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -e MYSQL_ROOT_PASSWORD="${db_root}" \
+  -e MYSQL_DATABASE="${APP_NAME}" \
+  -e MYSQL_USER="${APP_NAME}" \
+  -e MYSQL_PASSWORD="${db_user}" \
+  -v "${DB_DIR}":/config \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${DB_NAME}":"${DB_VER}"
+
+podman create \
+  --name "${APP_NAME}" \
+  --pod "${APP_NAME}" \
+  -v "${CONF_DIR}":/var/www/html/storage/upload \
+  -e APP_KEY="$(head /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 32 && echo)" \
+  -e DB_HOST=127.0.0.1 \
+  -e DB_PORT=3306 \
+  -e DB_CONNECTION=mysql \
+  -e DB_DATABASE="${APP_NAME}" \
+  -e DB_USERNAME="${APP_NAME}" \
+  -e DB_PASSWORD="${db_user}" \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  fireflyiii/core:"${APP_VER}"
+}
+
+start_fireflyiii() {
+podman start fireflyiii-db && podman start fireflyiii
+}
+
+stop_fireflyiii() {
+podman stop fireflyiii && podman stop fireflyiii-db
+}
+
+remove_fireflyiii() {
+podman rm fireflyiii && podman rm fireflyiii-db
+}
+
+update_fireflyiii() {
+    
+}
+
+backup_fireflyiii() {
+    
+}

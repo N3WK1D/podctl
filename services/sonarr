@@ -1,0 +1,35 @@
+SERVICE_NAME="sonarr"
+
+create_() {
+declare -r APP_NAME="sonarr"
+declare -r APP_VER="3.0.10"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -p 8989:8989 \
+  -v "${CONF_DIR}":/config \
+  -v "${SHOWS_DIR}":/tv \
+  -v "${DLOAD_DIR}":/downloads \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_sonarr() {
+podman start sonarr
+}
+
+stop_sonarr() {
+podman stop sonarr
+}
+
+remove_sonarr() {
+podman rm sonarr
+}

@@ -1,0 +1,33 @@
+create_radarr() {
+declare -r APP_NAME="radarr"
+declare -r APP_VER="4.3.2"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -p 7878:7878 \
+  -v "${CONF_DIR}":/config \
+  -v "${MOVIE_DIR}":/movies \
+  -v "${DLOAD_DIR}":/downloads \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_radarr() {
+podman start radarr
+}
+
+stop_radarr() {
+podman stop radarr
+}
+
+remove_radarr() {
+podman rm radarr
+}

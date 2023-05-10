@@ -1,0 +1,40 @@
+SERVICE_NAME="jellyfin"
+
+create_jellyfin() {
+declare -r APP_NAME="jellyfin"
+declare -r APP_VER="10.8.9"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -e JELLYFIN_PublishedServerUrl=192.168.0.5 \
+  -p 8096:8096 \
+  -p 8920:8920 \
+  -p 7359:7359/udp \
+  -p 1900:1900/udp \
+  -v "${CONF_DIR}":/config \
+  -v "${SHOWS_DIR}":/data/tvshows \
+  -v "${MOVIE_DIR}":/data/movies \
+  -v "${MUSIC_DIR}":/data/music \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_jellyfin() {
+podman start jellyfin
+}
+
+stop_jellyfin() {
+podman stop jellyfin
+}
+
+remove_jellyfin() {
+podman rm jellyfin
+}

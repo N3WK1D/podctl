@@ -1,0 +1,37 @@
+SERVICE_NAME="qbittorrent"
+
+create_() {
+declare -r APP_NAME="qbittorrent"
+declare -r APP_VER="4.5.2"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -e WEBUI_PORT=8080 \
+  -p 8080:8080 \
+  -p 6881:6881 \
+  -p 6881:6881/udp \
+  -v "${CONF_DIR}":/config \
+  -v "${DLOAD_DIR}":/downloads \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_qbittorrent() {
+podman start qbittorrent
+}
+
+stop_qbittorrent() {
+podman stop qbittorrent
+}
+
+remove_qbittorrent() {
+podman rm qbittorrent
+}

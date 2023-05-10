@@ -1,0 +1,33 @@
+SERVICE_NAME="prowlarr"
+
+create_prowlarr() {
+declare -r APP_NAME="prowlarr"
+declare -r APP_VER="1.2.2"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r CONF_DIR="${APP_DIR}/config"
+
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+
+podman create \
+  --name "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -p 9696:9696 \
+  -v "${CONF_DIR}":/config \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_prowlarr() {
+podman start prowlarr
+}
+
+stop_prowlarr() {
+podman stop prowlarr
+}
+
+remove_prowlarr() {
+podman rm prowlarr
+}

@@ -1,0 +1,66 @@
+SERVICE_NAME="nextcloud"
+
+create_nextcloud() {
+declare -r APP_NAME="nextcloud"
+declare -r APP_VER="25.0.4"
+declare -r APP_DIR="${APPDATA_DIR}/${APP_NAME}"
+declare -r DATA_DIR="${APP_DIR}/data"
+declare -r CONF_DIR="${APP_DIR}/config"
+declare -r DB_NAME="mariadb"
+declare -r DB_VER="10.6.12"
+declare -r DB_DIR="${APP_DIR}/db"
+
+[[ ! -d "${DATA_DIR}" ]] && mkdir -p "${DATA_DIR}"
+[[ ! -d "${CONF_DIR}" ]] && mkdir -p "${CONF_DIR}"
+[[ ! -d "${DB_DIR}" ]] && mkdir -p "${DB_DIR}"
+
+echo -en "Database preparation..."
+echo -en "\nEnter db root password: "
+read -rs db_root
+echo -en "\nEnter db user password: "
+read -rs db_user
+echo
+
+podman pod create \
+  --name "${APP_NAME}" \
+  -p 443:443
+
+podman create \
+  --name nextcloud-db \
+  --pod "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -e MYSQL_ROOT_PASSWORD="${db_root}" \
+  -e MYSQL_DATABASE="${APP_NAME}" \
+  -e MYSQL_USER="${APP_NAME}" \
+  -e MYSQL_PASSWORD="${db_user}" \
+  -v "${DB_DIR}":/config \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${DB_NAME}":"${DB_VER}"
+
+podman create \
+  --name "${APP_NAME}" \
+  --pod "${APP_NAME}" \
+  -e PUID="${P_UID:-1000}" \
+  -e PGID="${P_GID:-1000}" \
+  -e TZ="${TIME_ZONE:-America/Belize}" \
+  -v "${CONF_DIR}":/config \
+  -v "${DATA_DIR}":/data \
+  --restart unless-stopped \
+  --security-opt no-new-privileges \
+  lscr.io/linuxserver/"${APP_NAME}":"${APP_VER}"
+}
+
+start_nextcloud() {
+podman start nextcloud-db && podman start nextcloud
+}
+
+stop_nextcloud() {
+podman stop nextcloud && podman stop nextcloud-db
+}
+
+remove_nextcloud() {
+podman rm nextcloud && podman rm nextcloud-db
+}
