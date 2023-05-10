@@ -6,7 +6,7 @@ show_help() {
 cat << EOF
 Usage: podctl [-h][-c|u|d|r|U|b <service>]
 
-A convenient script that creates, starts, stops, and removes podman services.
+Create, start, stop, and remove podman services.
 
 -h              Print help and exit.
 -c              Create.
