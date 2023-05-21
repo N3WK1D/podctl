@@ -1,0 +1,16 @@
+POD_NAME="cloud"
+
+create_pod_cloud() {
+podman pod create \
+  -p 80:80 `# Dashy` \
+  -p 443:443 `# Nextcloud` \
+  -p 8384:8384 `# Syncthing` \
+  -p 22000:22000/tcp `# Syncthing` \
+  -p 22000:22000/udp `# Syncthing` \
+  -p 21027:21027/udp `# Syncthing` \
+  --name cloud
+  
+#create_dashy
+#create_nextcloud
+#create_syncthing
+}

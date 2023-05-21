@@ -1,0 +1,13 @@
+POD_NAME="management"
+
+create_pod_management() {
+podman pod create \
+  -p 7745:7745 `# Homebox` \
+  -p 9283:80 `# Grocy` \
+  -p 8123:8123 `# Home Assistant` \
+  --name management
+  
+#create_homebox
+#create_grocy
+#create_home_assistant
+}

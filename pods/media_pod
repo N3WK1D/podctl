@@ -1,0 +1,14 @@
+POD_NAME="media"
+
+create_pod_media() {
+podman pod create \
+  -p 8882:8083 `# Calibre Web` \
+  -p 8883:8096 `# Jellyfin` \
+  -p 8920:8920 `# Jellyfin` \
+  -p 7359:7359/udp `# Jellyfin` \
+  -p 1900:1900/udp `# Jellyfin` \
+  --name media
+  
+#create_calibre
+#create_jellyfin
+}

@@ -1,0 +1,19 @@
+POD_NAME="torrent"
+
+create_pod_torrent() {
+podman pod create \
+  -p 8891:8080 `# qBittorrent` \
+  -p 6881:6881/tcp `# qBittorent` \
+  -p 6881:6881/udp `# qBittorent` \
+  -p 8892:9696 `# Prowlarr` \
+  -p 8893:8989 `# Sonarr` \
+  -p 8894:7878 `# Radarr` \
+  -p 8895:8686 `# Lidarr` \
+  --name torrent
+
+#create_qbittorrent
+#create_prowlarr
+#create_sonarr
+#create_radarr
+#create_lidarr
+}
